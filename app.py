@@ -5,10 +5,183 @@ from ingest import ingest
 from chunk import chunk_files
 from retrieve import build_index
 from agent import Agent
-from brief import generate_brief, ONBOARDING_QUESTIONS
+from brief import generate_brief
 from llm import get_llm
 
 _pipeline_cache: dict[str, tuple[Agent, list]] = {}
+
+CSS = """
+/* ── Global ── */
+body, .gradio-container {
+    background: #0f1117 !important;
+    font-family: 'Inter', 'Segoe UI', sans-serif !important;
+}
+
+/* ── Header ── */
+.rag-header {
+    text-align: center;
+    padding: 2.5rem 1rem 1.5rem;
+}
+.rag-header h1 {
+    font-size: 2.4rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #6ee7b7, #3b82f6, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0 0 0.4rem;
+}
+.rag-header p {
+    color: #8b949e;
+    font-size: 1rem;
+    margin: 0;
+}
+
+/* ── Cards ── */
+.card {
+    background: #161b22 !important;
+    border: 1px solid #21262d !important;
+    border-radius: 12px !important;
+    padding: 1.25rem !important;
+}
+
+/* ── Input boxes ── */
+textarea, input[type=text] {
+    background: #0d1117 !important;
+    border: 1px solid #30363d !important;
+    color: #e6edf3 !important;
+    border-radius: 8px !important;
+    font-size: 0.95rem !important;
+}
+textarea:focus, input[type=text]:focus {
+    border-color: #58a6ff !important;
+    box-shadow: 0 0 0 3px rgba(88,166,255,0.15) !important;
+}
+
+/* ── Labels ── */
+label span, .label-wrap span {
+    color: #8b949e !important;
+    font-size: 0.82rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.04em !important;
+    text-transform: uppercase !important;
+}
+
+/* ── Primary button ── */
+.load-btn button {
+    background: linear-gradient(135deg, #238636, #2ea043) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    color: #fff !important;
+    font-weight: 700 !important;
+    font-size: 0.95rem !important;
+    padding: 0.6rem 1.8rem !important;
+    transition: all 0.2s !important;
+    width: 100% !important;
+}
+.load-btn button:hover {
+    background: linear-gradient(135deg, #2ea043, #3fb950) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 15px rgba(46,160,67,0.4) !important;
+}
+
+/* ── Ask button ── */
+.ask-btn button {
+    background: linear-gradient(135deg, #1f6feb, #388bfd) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    color: #fff !important;
+    font-weight: 700 !important;
+    width: 100% !important;
+    transition: all 0.2s !important;
+}
+.ask-btn button:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 15px rgba(56,139,253,0.4) !important;
+}
+
+/* ── Brief button ── */
+.brief-btn button {
+    background: linear-gradient(135deg, #6e40c9, #8957e5) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    color: #fff !important;
+    font-weight: 700 !important;
+    width: 100% !important;
+    transition: all 0.2s !important;
+}
+.brief-btn button:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 15px rgba(137,87,229,0.4) !important;
+}
+
+/* ── Status bar ── */
+.status-box textarea {
+    background: #0d1117 !important;
+    border-left: 3px solid #58a6ff !important;
+    border-radius: 0 8px 8px 0 !important;
+    color: #58a6ff !important;
+    font-size: 0.85rem !important;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace !important;
+}
+
+/* ── Answer / Brief output ── */
+.answer-box, .brief-box {
+    background: #161b22 !important;
+    border: 1px solid #21262d !important;
+    border-radius: 10px !important;
+    padding: 1.25rem !important;
+    color: #e6edf3 !important;
+    min-height: 120px;
+}
+.answer-box p, .brief-box p { color: #c9d1d9 !important; line-height: 1.7 !important; }
+.answer-box code, .brief-box code {
+    background: #21262d !important;
+    color: #79c0ff !important;
+    border-radius: 4px !important;
+    padding: 0.1em 0.4em !important;
+    font-size: 0.88em !important;
+}
+.answer-box h1, .answer-box h2, .answer-box h3,
+.brief-box h1, .brief-box h2, .brief-box h3 {
+    color: #e6edf3 !important;
+    border-bottom: 1px solid #21262d !important;
+    padding-bottom: 0.3rem !important;
+}
+
+/* ── Tabs ── */
+.tabs > .tab-nav button {
+    color: #8b949e !important;
+    font-weight: 600 !important;
+    border-bottom: 2px solid transparent !important;
+    background: transparent !important;
+}
+.tabs > .tab-nav button.selected {
+    color: #58a6ff !important;
+    border-bottom-color: #58a6ff !important;
+}
+
+/* ── Dropdown ── */
+.dropdown > label > select {
+    background: #0d1117 !important;
+    border: 1px solid #30363d !important;
+    color: #e6edf3 !important;
+    border-radius: 8px !important;
+}
+
+/* ── Checkbox ── */
+input[type=checkbox] { accent-color: #58a6ff !important; }
+
+/* ── Suggestion chips ── */
+.suggestion-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+"""
+
+SUGGESTIONS = [
+    "What does this codebase do?",
+    "What are the main entry points?",
+    "What external libraries does this use?",
+    "Where should a new developer start?",
+    "What are the core data models?",
+]
 
 
 def _get_or_build(source: str, mode: str, mock: bool) -> tuple[Agent, list]:
@@ -25,12 +198,16 @@ def _get_or_build(source: str, mode: str, mock: bool) -> tuple[Agent, list]:
 
 def load_repo(source: str, mode: str, use_mock: bool):
     if not source.strip():
-        return "Please enter a GitHub URL or local path.", gr.update(interactive=False)
+        return "⚠ Please enter a GitHub URL or local path.", gr.update(interactive=False)
     try:
-        _get_or_build(source.strip(), mode, use_mock)
-        return f"Loaded `{source.strip()}` with {mode} index.", gr.update(interactive=True)
+        agent, chunks = _get_or_build(source.strip(), mode, use_mock)
+        n_files = len(set(c.file for c in chunks))
+        return (
+            f"✅  Loaded **{source.strip()}** — {n_files} files · {len(chunks)} chunks · {mode} index",
+            gr.update(interactive=True),
+        )
     except Exception as e:
-        return f"Error: {e}", gr.update(interactive=False)
+        return f"❌  {e}", gr.update(interactive=False)
 
 
 def ask_question(source: str, mode: str, use_mock: bool, question: str):
@@ -41,10 +218,15 @@ def ask_question(source: str, mode: str, use_mock: bool, question: str):
         ans = agent.ask(question)
         output = ans.answer
         if ans.citations:
-            output += "\n\n**Citations:**\n" + "\n".join(f"- `{c}`" for c in ans.citations)
+            refs = "\n".join(f"- `{c}`" for c in ans.citations)
+            output += f"\n\n---\n**📎 Citations**\n{refs}"
         return output
     except Exception as e:
-        return f"Error: {e}"
+        return f"❌ Error: {e}"
+
+
+def fill_suggestion(suggestion: str):
+    return suggestion
 
 
 def generate_brief_md(source: str, mode: str, use_mock: bool):
@@ -53,51 +235,93 @@ def generate_brief_md(source: str, mode: str, use_mock: bool):
         b = generate_brief(agent)
         return b.to_markdown()
     except Exception as e:
-        return f"Error: {e}"
+        return f"❌ Error: {e}"
 
 
 def build_app() -> gr.Blocks:
-    with gr.Blocks(title="RAG-over-Code", theme=gr.themes.Soft()) as demo:
-        gr.Markdown("# RAG-over-Code\nAsk questions about any codebase.")
+    with gr.Blocks(title="RAGRepo") as demo:
 
-        with gr.Row():
-            source_box = gr.Textbox(
-                label="GitHub URL or local path",
-                placeholder="https://github.com/org/repo  or  /path/to/project",
-                scale=4,
-            )
-            mode_dd = gr.Dropdown(
-                choices=["bm25", "dense", "hybrid"],
-                value="bm25",
-                label="Retrieval mode",
-                scale=1,
-            )
-            mock_cb = gr.Checkbox(label="Mock LLM (offline)", value=False, scale=1)
+        # ── Header ──────────────────────────────────────────────
+        gr.HTML("""
+        <div class="rag-header">
+            <h1>⚡ RAGRepo</h1>
+            <p>Ask anything about any codebase — powered by retrieval-augmented generation</p>
+        </div>
+        """)
 
-        load_btn = gr.Button("Load Repository", variant="primary")
-        status_box = gr.Textbox(label="Status", interactive=False)
-
-        with gr.Tabs():
-            with gr.Tab("Ask a Question"):
-                question_box = gr.Textbox(
-                    label="Question",
-                    placeholder="What does this codebase do?",
-                    lines=2,
-                    interactive=False,
+        # ── Repo loader card ─────────────────────────────────────
+        with gr.Group(elem_classes="card"):
+            with gr.Row(equal_height=True):
+                source_box = gr.Textbox(
+                    label="GitHub URL or Local Path",
+                    placeholder="https://github.com/org/repo   or   C:/path/to/project",
+                    scale=5,
+                    show_label=True,
                 )
-                ask_btn = gr.Button("Ask", interactive=False)
-                answer_box = gr.Markdown(label="Answer")
+                mode_dd = gr.Dropdown(
+                    choices=["bm25", "dense", "hybrid"],
+                    value="bm25",
+                    label="Retrieval Mode",
+                    scale=1,
+                )
+                mock_cb = gr.Checkbox(label="Mock LLM", value=False, scale=1)
 
-            with gr.Tab("Onboarding Brief"):
-                brief_btn = gr.Button("Generate Brief", interactive=False)
-                brief_box = gr.Markdown(label="Brief")
+            with gr.Row():
+                load_btn = gr.Button("🚀  Load Repository", variant="primary", elem_classes="load-btn", scale=1)
 
+            status_md = gr.Markdown(
+                value="",
+                elem_classes="status-box",
+            )
+
+        # ── Tabs ─────────────────────────────────────────────────
+        with gr.Tabs():
+
+            # ── Ask tab ──
+            with gr.Tab("💬  Ask a Question"):
+                with gr.Group(elem_classes="card"):
+                    question_box = gr.Textbox(
+                        label="Your Question",
+                        placeholder="What does this codebase do?",
+                        lines=2,
+                        interactive=False,
+                    )
+                    # Quick suggestion chips
+                    gr.HTML('<div style="color:#8b949e;font-size:0.8rem;font-weight:600;margin:4px 0 6px;text-transform:uppercase;letter-spacing:.04em">Quick questions</div>')
+                    with gr.Row():
+                        suggestion_btns = [
+                            gr.Button(s, size="sm", variant="secondary") for s in SUGGESTIONS
+                        ]
+                    with gr.Row():
+                        ask_btn = gr.Button("🔍  Ask", variant="primary", interactive=False, elem_classes="ask-btn")
+
+                answer_box = gr.Markdown(
+                    value="*Load a repository above to get started.*",
+                    elem_classes="answer-box",
+                )
+
+            # ── Brief tab ──
+            with gr.Tab("📄  Onboarding Brief"):
+                with gr.Group(elem_classes="card"):
+                    gr.Markdown("Generate a complete onboarding document covering purpose, structure, entry points, dependencies, and more.")
+                    brief_btn = gr.Button("✨  Generate Brief", variant="primary", interactive=False, elem_classes="brief-btn")
+
+                brief_box = gr.Markdown(
+                    value="*Load a repository above, then click Generate Brief.*",
+                    elem_classes="brief-box",
+                )
+
+        # ── Events ───────────────────────────────────────────────
         load_btn.click(
             fn=load_repo,
             inputs=[source_box, mode_dd, mock_cb],
-            outputs=[status_box, question_box],
+            outputs=[status_md, question_box],
         ).then(
-            fn=lambda: (gr.update(interactive=True), gr.update(interactive=True), gr.update(interactive=True)),
+            fn=lambda: (
+                gr.update(interactive=True),
+                gr.update(interactive=True),
+                gr.update(interactive=True),
+            ),
             outputs=[ask_btn, brief_btn, question_box],
         )
 
@@ -113,11 +337,19 @@ def build_app() -> gr.Blocks:
             outputs=[brief_box],
         )
 
+        for btn, suggestion in zip(suggestion_btns, SUGGESTIONS):
+            btn.click(fn=lambda s=suggestion: s, outputs=[question_box])
+
     return demo
 
 
 _demo = build_app()
-app = _demo.app  # ASGI app for Vercel
+_demo.launch(
+    prevent_thread_lock=True,
+    css=CSS,
+    theme=gr.themes.Base(),
+)
+app = _demo.app  # ASGI export for Vercel
 
 if __name__ == "__main__":
-    _demo.launch(share=False)
+    _demo.launch(share=False, css=CSS, theme=gr.themes.Base())
