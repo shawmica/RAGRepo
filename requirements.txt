@@ -2,6 +2,7 @@ groq>=0.9.0
 rank-bm25>=0.2.2
 click>=8.1.0
 gradio>=4.0.0
+fastapi>=0.105.0
 # Optional dense/hybrid retrieval dependencies are not installed by default on Vercel.
 # Install them locally if you need dense/hybrid mode:
 # pip install sentence-transformers numpy
