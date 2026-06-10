@@ -116,6 +116,8 @@ def build_app() -> gr.Blocks:
     return demo
 
 
+_demo = build_app()
+app = _demo.app  # ASGI app for Vercel
+
 if __name__ == "__main__":
-    app = build_app()
-    app.launch(share=False)
+    _demo.launch(share=False)
