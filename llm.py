@@ -1,6 +1,6 @@
 """LLM abstraction — Groq backend (free) or deterministic mock."""
 from __future__ import annotations
-import os, json, re
+import os, json, re, time
 from dataclasses import dataclass
 from typing import Any
 
@@ -30,7 +30,7 @@ class GroqLLM:
                 "Get a free key at https://console.groq.com — no credit card needed."
             )
         self.client = Groq(api_key=key)
-        self.model = model
+        self.model = os.environ.get("GROQ_MODEL", model)
 
     def chat(
         self,
@@ -45,19 +45,30 @@ class GroqLLM:
         for m in messages:
             api_msgs.append({"role": m.role, "content": m.content})
 
-        response = self.client.chat.completions.create(
-            model=self.model,
-            messages=api_msgs,
-            max_tokens=max_tokens,
-        )
-
-        text = response.choices[0].message.content or ""
-        usage = response.usage
-        return LLMResponse(
-            content=text,
-            model=self.model,
-            input_tokens=getattr(usage, "prompt_tokens", 0),
-            output_tokens=getattr(usage, "completion_tokens", 0),
+        for attempt in range(3):
+            try:
+                response = self.client.chat.completions.create(
+                    model=self.model,
+                    messages=api_msgs,
+                    max_tokens=max_tokens,
+                )
+                text = response.choices[0].message.content or ""
+                usage = response.usage
+                return LLMResponse(
+                    content=text,
+                    model=self.model,
+                    input_tokens=getattr(usage, "prompt_tokens", 0),
+                    output_tokens=getattr(usage, "completion_tokens", 0),
+                )
+            except Exception as e:
+                message = str(e).lower()
+                if "rate_limit" in message or "429" in message:
+                    delay = 2 ** attempt
+                    time.sleep(min(delay, 10))
+                    continue
+                raise
+        raise RuntimeError(
+            "Groq rate limit exceeded. Please try again in a few seconds or switch to a smaller model."
         )
 
 
