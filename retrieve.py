@@ -26,11 +26,23 @@ class BM25Index:
 
 
 class DenseIndex:
-    """Dense retrieval using sentence-transformers embeddings."""
+    """Dense retrieval using sentence-transformers embeddings.
+
+    Requires optional dependencies:
+    - sentence-transformers
+    - numpy
+    """
 
     def __init__(self, chunks: list[Chunk], model_name: str = "all-MiniLM-L6-v2"):
-        from sentence_transformers import SentenceTransformer
-        import numpy as np
+        try:
+            from sentence_transformers import SentenceTransformer
+            import numpy as np
+        except ImportError as e:
+            raise ImportError(
+                "Dense retrieval requires sentence-transformers and numpy. "
+                "Install them with: pip install sentence-transformers numpy"
+            ) from e
+
         self.chunks = chunks
         self.model = SentenceTransformer(model_name)
         texts = [c.content[:512] for c in chunks]
