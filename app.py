@@ -242,7 +242,7 @@ def generate_brief_md(source: str, mode: str, use_mock: bool):
 
 
 def build_app() -> gr.Blocks:
-    with gr.Blocks(title="RAGRepo") as demo:
+    with gr.Blocks(title="RAGRepo", css=CSS, theme=gr.themes.Base()) as demo:
 
         # ── Header ──────────────────────────────────────────────
         gr.HTML("""
@@ -339,12 +339,8 @@ def build_app() -> gr.Blocks:
 
 
 _demo = build_app()
-_demo.launch(
-    prevent_thread_lock=True,
-    css=CSS,
-    theme=gr.themes.Base(),
-)
+_demo.launch(prevent_thread_lock=True)
 app = _demo.app  # ASGI export for Vercel
 
 if __name__ == "__main__":
-    _demo.launch(share=False, css=CSS, theme=gr.themes.Base())
+    _demo.launch(share=False)
