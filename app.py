@@ -213,8 +213,8 @@ def load_repo(source: str, mode: str, use_mock: bool):
         n_files = len(set(c.file for c in chunks))
         msg = f"Repository loaded — {n_files} files, {len(chunks)} chunks, {mode} index."
         return gr.update(value=msg, elem_classes="status-ok"), gr.update(interactive=True)
-    except Exception:
-        return gr.update(value="Could not load the repository. Please check the URL or path and try again.", elem_classes="status-err"), gr.update(interactive=False)
+    except Exception as e:
+        return gr.update(value=f"Could not load the repository: {e}", elem_classes="status-err"), gr.update(interactive=False)
 
 
 def ask_question(source: str, mode: str, use_mock: bool, question: str):
@@ -228,8 +228,8 @@ def ask_question(source: str, mode: str, use_mock: bool, question: str):
             refs = "\n".join(f"- `{c}`" for c in ans.citations)
             output += f"\n\n---\n**Citations**\n{refs}"
         return output
-    except Exception:
-        return "Something went wrong while processing your question. Please try again."
+    except Exception as e:
+        return f"Something went wrong while processing your question: {e}"
 
 
 def generate_brief_md(source: str, mode: str, use_mock: bool):
@@ -237,8 +237,8 @@ def generate_brief_md(source: str, mode: str, use_mock: bool):
         agent, _ = _get_or_build(source.strip(), mode, use_mock)
         b = generate_brief(agent)
         return b.to_markdown()
-    except Exception:
-        return "Could not generate the brief. Please make sure a repository is loaded and try again."
+    except Exception as e:
+        return f"Could not generate the brief: {e}"
 
 
 def build_app() -> gr.Blocks:
