@@ -399,7 +399,44 @@ def generate_brief_md(source: str, mode: str, use_mock: bool):
 
 
 def build_app() -> gr.Blocks:
-    with gr.Blocks(title="RAGRepo", css=CSS, theme=gr.themes.Base()) as demo:
+    theme = gr.themes.Base(
+        primary_hue=gr.themes.colors.blue,
+        secondary_hue=gr.themes.colors.slate,
+        neutral_hue=gr.themes.colors.slate,
+        font=gr.themes.GoogleFont("Inter"),
+    ).set(
+        button_primary_background_fill="#3b82f6",
+        button_primary_background_fill_hover="#2563eb",
+        button_primary_text_color="#ffffff",
+        button_secondary_background_fill="#1e293b",
+        button_secondary_background_fill_hover="#334155",
+        button_secondary_text_color="#94a3b8",
+        button_secondary_border_color="#334155",
+        body_background_fill="#0a0c10",
+        body_text_color="#e2e8f0",
+        background_fill_primary="#0f1420",
+        background_fill_secondary="#070a0f",
+        border_color_primary="#1e2430",
+        border_color_accent="#3b82f6",
+        input_background_fill="#070a0f",
+        input_border_color="#1e2430",
+        input_border_color_focus="#3b82f6",
+        input_placeholder_color="#334155",
+        block_background_fill="#0f1420",
+        block_border_color="#1e2430",
+        block_label_text_color="#475569",
+        block_title_text_color="#e2e8f0",
+        panel_background_fill="#0f1420",
+        panel_border_color="#1e2430",
+        checkbox_background_color="#070a0f",
+        checkbox_border_color="#334155",
+        checkbox_border_color_focus="#3b82f6",
+        checkbox_background_color_selected="#3b82f6",
+        color_accent_soft="#1e3a5f",
+        link_text_color="#3b82f6",
+        link_text_color_hover="#60a5fa",
+    )
+    with gr.Blocks(title="RAGRepo", css=CSS, theme=theme) as demo:
 
         # ── Header ──────────────────────────────────────────
         gr.HTML("""
