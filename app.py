@@ -66,7 +66,7 @@ label span, .label-wrap span {
     text-transform: uppercase !important;
 }
 
-/* ── Primary button ── */
+/* ── Load button ── */
 .load-btn button {
     background: linear-gradient(135deg, #238636, #2ea043) !important;
     border: none !important;
@@ -114,15 +114,27 @@ label span, .label-wrap span {
     box-shadow: 0 4px 15px rgba(137,87,229,0.4) !important;
 }
 
-/* ── Status bar ── */
-.status-box textarea {
-    background: #0d1117 !important;
-    border-left: 3px solid #58a6ff !important;
-    border-radius: 0 8px 8px 0 !important;
-    color: #58a6ff !important;
-    font-size: 0.85rem !important;
-    font-family: 'JetBrains Mono', 'Fira Code', monospace !important;
+/* ── Suggestion chip buttons ── */
+.suggestion-chip button {
+    background: #21262d !important;
+    border: 1px solid #30363d !important;
+    border-radius: 20px !important;
+    color: #8b949e !important;
+    font-size: 0.8rem !important;
+    font-weight: 500 !important;
+    padding: 0.25rem 0.85rem !important;
+    transition: all 0.15s !important;
+    white-space: nowrap !important;
 }
+.suggestion-chip button:hover {
+    background: #30363d !important;
+    border-color: #58a6ff !important;
+    color: #58a6ff !important;
+}
+
+/* ── Status message ── */
+.status-ok p  { color: #3fb950 !important; font-size: 0.9rem !important; }
+.status-err p { color: #f85149 !important; font-size: 0.9rem !important; }
 
 /* ── Answer / Brief output ── */
 .answer-box, .brief-box {
@@ -170,9 +182,6 @@ label span, .label-wrap span {
 
 /* ── Checkbox ── */
 input[type=checkbox] { accent-color: #58a6ff !important; }
-
-/* ── Suggestion chips ── */
-.suggestion-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
 """
 
 SUGGESTIONS = [
@@ -198,16 +207,14 @@ def _get_or_build(source: str, mode: str, mock: bool) -> tuple[Agent, list]:
 
 def load_repo(source: str, mode: str, use_mock: bool):
     if not source.strip():
-        return "⚠ Please enter a GitHub URL or local path.", gr.update(interactive=False)
+        return gr.update(value="Please enter a GitHub URL or local path.", elem_classes="status-err"), gr.update(interactive=False)
     try:
         agent, chunks = _get_or_build(source.strip(), mode, use_mock)
         n_files = len(set(c.file for c in chunks))
-        return (
-            f"✅  Loaded **{source.strip()}** — {n_files} files · {len(chunks)} chunks · {mode} index",
-            gr.update(interactive=True),
-        )
-    except Exception as e:
-        return f"❌  {e}", gr.update(interactive=False)
+        msg = f"Repository loaded — {n_files} files, {len(chunks)} chunks, {mode} index."
+        return gr.update(value=msg, elem_classes="status-ok"), gr.update(interactive=True)
+    except Exception:
+        return gr.update(value="Could not load the repository. Please check the URL or path and try again.", elem_classes="status-err"), gr.update(interactive=False)
 
 
 def ask_question(source: str, mode: str, use_mock: bool, question: str):
@@ -219,14 +226,10 @@ def ask_question(source: str, mode: str, use_mock: bool, question: str):
         output = ans.answer
         if ans.citations:
             refs = "\n".join(f"- `{c}`" for c in ans.citations)
-            output += f"\n\n---\n**📎 Citations**\n{refs}"
+            output += f"\n\n---\n**Citations**\n{refs}"
         return output
-    except Exception as e:
-        return f"❌ Error: {e}"
-
-
-def fill_suggestion(suggestion: str):
-    return suggestion
+    except Exception:
+        return "Something went wrong while processing your question. Please try again."
 
 
 def generate_brief_md(source: str, mode: str, use_mock: bool):
@@ -234,8 +237,8 @@ def generate_brief_md(source: str, mode: str, use_mock: bool):
         agent, _ = _get_or_build(source.strip(), mode, use_mock)
         b = generate_brief(agent)
         return b.to_markdown()
-    except Exception as e:
-        return f"❌ Error: {e}"
+    except Exception:
+        return "Could not generate the brief. Please make sure a repository is loaded and try again."
 
 
 def build_app() -> gr.Blocks:
@@ -244,7 +247,7 @@ def build_app() -> gr.Blocks:
         # ── Header ──────────────────────────────────────────────
         gr.HTML("""
         <div class="rag-header">
-            <h1>⚡ RAGRepo</h1>
+            <h1>RAGRepo</h1>
             <p>Ask anything about any codebase — powered by retrieval-augmented generation</p>
         </div>
         """)
@@ -256,7 +259,6 @@ def build_app() -> gr.Blocks:
                     label="GitHub URL or Local Path",
                     placeholder="https://github.com/org/repo   or   C:/path/to/project",
                     scale=5,
-                    show_label=True,
                 )
                 mode_dd = gr.Dropdown(
                     choices=["bm25", "dense", "hybrid"],
@@ -266,19 +268,14 @@ def build_app() -> gr.Blocks:
                 )
                 mock_cb = gr.Checkbox(label="Mock LLM", value=False, scale=1)
 
-            with gr.Row():
-                load_btn = gr.Button("🚀  Load Repository", variant="primary", elem_classes="load-btn", scale=1)
-
-            status_md = gr.Markdown(
-                value="",
-                elem_classes="status-box",
-            )
+            load_btn = gr.Button("Load Repository", variant="primary", elem_classes="load-btn")
+            status_md = gr.Markdown(value="", elem_classes="status-ok")
 
         # ── Tabs ─────────────────────────────────────────────────
         with gr.Tabs():
 
             # ── Ask tab ──
-            with gr.Tab("💬  Ask a Question"):
+            with gr.Tab("Ask a Question"):
                 with gr.Group(elem_classes="card"):
                     question_box = gr.Textbox(
                         label="Your Question",
@@ -286,28 +283,26 @@ def build_app() -> gr.Blocks:
                         lines=2,
                         interactive=False,
                     )
-                    # Quick suggestion chips
-                    gr.HTML('<div style="color:#8b949e;font-size:0.8rem;font-weight:600;margin:4px 0 6px;text-transform:uppercase;letter-spacing:.04em">Quick questions</div>')
+                    gr.HTML('<div style="color:#8b949e;font-size:0.78rem;font-weight:600;margin:6px 0 4px;text-transform:uppercase;letter-spacing:.05em">Quick questions</div>')
                     with gr.Row():
                         suggestion_btns = [
-                            gr.Button(s, size="sm", variant="secondary") for s in SUGGESTIONS
+                            gr.Button(s, size="sm", elem_classes="suggestion-chip") for s in SUGGESTIONS
                         ]
-                    with gr.Row():
-                        ask_btn = gr.Button("🔍  Ask", variant="primary", interactive=False, elem_classes="ask-btn")
+                    ask_btn = gr.Button("Ask", variant="primary", interactive=False, elem_classes="ask-btn")
 
                 answer_box = gr.Markdown(
-                    value="*Load a repository above to get started.*",
+                    value="Load a repository above to get started.",
                     elem_classes="answer-box",
                 )
 
             # ── Brief tab ──
-            with gr.Tab("📄  Onboarding Brief"):
+            with gr.Tab("Onboarding Brief"):
                 with gr.Group(elem_classes="card"):
                     gr.Markdown("Generate a complete onboarding document covering purpose, structure, entry points, dependencies, and more.")
-                    brief_btn = gr.Button("✨  Generate Brief", variant="primary", interactive=False, elem_classes="brief-btn")
+                    brief_btn = gr.Button("Generate Brief", variant="primary", interactive=False, elem_classes="brief-btn")
 
                 brief_box = gr.Markdown(
-                    value="*Load a repository above, then click Generate Brief.*",
+                    value="Load a repository above, then click Generate Brief.",
                     elem_classes="brief-box",
                 )
 
