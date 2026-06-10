@@ -1,6 +1,9 @@
 """Ingest a GitHub URL or local path into a list of source files."""
 from __future__ import annotations
 import os, shutil, subprocess, tempfile, stat
+import urllib.parse
+import urllib.request
+import zipfile
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -127,16 +130,63 @@ def _fix_permissions(func, path, _exc):
     func(path)
 
 
+def _parse_github_url(url: str) -> tuple[str, str, str]:
+    if url.startswith("git@github.com:"):
+        url = url.replace("git@github.com:", "https://github.com/")
+    if url.endswith(".git"):
+        url = url[:-4]
+    parsed = urllib.parse.urlparse(url)
+    if parsed.netloc not in {"github.com", "www.github.com"}:
+        raise ValueError("Only GitHub URLs are supported for remote ingestion.")
+    parts = parsed.path.strip("/").split("/")
+    if len(parts) < 2:
+        raise ValueError("Invalid GitHub repository URL.")
+    owner, repo = parts[0], parts[1]
+    branch = "main"
+    if len(parts) >= 4 and parts[2] == "tree":
+        branch = parts[3]
+    return owner, repo, branch
+
+
+def _download_github_archive(owner: str, repo: str, branch: str, tmp: str) -> str:
+    archive_url = f"https://github.com/{owner}/{repo}/archive/refs/heads/{branch}.zip"
+    archive_path = os.path.join(tmp, "repo.zip")
+    try:
+        urllib.request.urlretrieve(archive_url, archive_path)
+    except Exception as exc:
+        raise RuntimeError(
+            f"Could not download GitHub archive for {owner}/{repo} branch {branch}: {exc}"
+        ) from exc
+
+    extracted = os.path.join(tmp, "repo")
+    with zipfile.ZipFile(archive_path, "r") as zf:
+        zf.extractall(extracted)
+    # GitHub zip archives contain a single top-level directory.
+    children = [p for p in os.listdir(extracted) if os.path.isdir(os.path.join(extracted, p))]
+    if len(children) == 1:
+        return os.path.join(extracted, children[0])
+    return extracted
+
+
 def ingest_github(url: str) -> list[SourceFile]:
     tmp = tempfile.mkdtemp(prefix="rag_repo_")
     try:
-        subprocess.run(
-            ["git", "clone", "--depth=1", url, tmp],
-            check=True,
-            capture_output=True,
-            text=True,
-        )
-        return _read_files(tmp)
+        try:
+            subprocess.run(
+                ["git", "clone", "--depth=1", url, tmp],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            return _read_files(tmp)
+        except FileNotFoundError:
+            owner, repo, branch = _parse_github_url(url)
+            repo_path = _download_github_archive(owner, repo, branch, tmp)
+            return _read_files(repo_path)
+        except subprocess.CalledProcessError:
+            owner, repo, branch = _parse_github_url(url)
+            repo_path = _download_github_archive(owner, repo, branch, tmp)
+            return _read_files(repo_path)
     finally:
         shutil.rmtree(tmp, onerror=_fix_permissions)
 
