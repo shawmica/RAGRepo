@@ -1,8 +1,9 @@
 from fastapi import FastAPI
 import gradio as gr
-from app import build_app
+from app import build_app, _build_theme, CSS
 
 app = FastAPI()
 
 demo = build_app()
-gr.mount_gradio_app(app, demo, path="/")
+# Gradio 6: theme/css must be passed at mount/launch time, not the Blocks constructor.
+gr.mount_gradio_app(app, demo, path="/", theme=_build_theme(), css=CSS)
