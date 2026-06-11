@@ -257,6 +257,17 @@ button[disabled] {
     padding: 5px 14px !important;
     white-space: nowrap !important;
     width: auto !important;
+    flex: 0 0 auto !important;
+    min-width: fit-content !important;
+}
+
+/* Chip row: don't stretch chips to equal widths */
+.chip-row, .chip-row .form {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+    overflow: visible !important;
 }
 .chip button:hover, button.chip:hover {
     border-color: #2563eb !important;
@@ -570,7 +581,7 @@ def build_app() -> gr.Blocks:
                         interactive=False,
                     )
                     gr.HTML('<p class="section-label" style="margin-top:14px">Quick questions</p>')
-                    with gr.Row():
+                    with gr.Row(elem_classes="chip-row"):
                         suggestion_btns = [
                             gr.Button(s, size="sm", elem_classes="chip") for s in SUGGESTIONS
                         ]
