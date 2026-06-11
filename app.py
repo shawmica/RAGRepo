@@ -10,9 +10,56 @@ from llm import get_llm
 
 _pipeline_cache: dict[str, tuple[Agent, list]] = {}
 
+FORCE_LIGHT_JS = """
+() => {
+    document.body.classList.remove('dark');
+    const url = new URL(window.location);
+    if (url.searchParams.get('__theme') !== 'light') {
+        url.searchParams.set('__theme', 'light');
+        window.history.replaceState({}, '', url);
+    }
+}
+"""
+
 CSS = """
 /* ── Reset & Base ─────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; }
+
+/* Neutralize dark-mode variants — this app is light-only */
+.dark, .dark * {
+    --body-background-fill: #eff6ff;
+    --background-fill-primary: #ffffff;
+    --background-fill-secondary: #f0f7ff;
+    --block-background-fill: #ffffff;
+    --panel-background-fill: #ffffff;
+    --input-background-fill: #f0f7ff;
+    --body-text-color: #1e3a5f;
+    --block-label-text-color: #3b82f6;
+    --border-color-primary: #bfdbfe;
+}
+
+/* Inner Gradio blocks/forms inherit the card — no nested boxes */
+.panel .styler,
+.panel .form,
+.panel .block,
+.panel .gr-form,
+.panel fieldset {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* No horizontal scrollbars inside cards — wrap instead */
+.panel .row,
+.panel .form,
+.top-row,
+.top-row .form {
+    overflow: visible !important;
+    flex-wrap: wrap !important;
+}
+.panel .block { overflow: visible !important; }
+.top-row .form > * { min-width: 130px !important; }
+.top-row .form > *:first-child { min-width: 280px !important; flex: 1 1 280px !important; }
 
 body, .gradio-container {
     background: #eff6ff !important;
@@ -134,7 +181,7 @@ button {
 }
 
 /* Load */
-.btn-load button {
+.btn-load button, button.btn-load {
     background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
     border: none !important;
     border-radius: 8px !important;
@@ -146,15 +193,15 @@ button {
     letter-spacing: 0.02em !important;
     box-shadow: 0 2px 8px rgba(37,99,235,0.25) !important;
 }
-.btn-load button:hover {
+.btn-load button:hover, button.btn-load:hover {
     background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important;
     box-shadow: 0 6px 20px rgba(37,99,235,0.35) !important;
     transform: translateY(-1px) !important;
 }
-.btn-load button:active { transform: translateY(0) !important; }
+.btn-load button:active, button.btn-load:active { transform: translateY(0) !important; }
 
 /* Ask */
-.btn-ask button {
+.btn-ask button, button.btn-ask {
     background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
     border: none !important;
     border-radius: 8px !important;
@@ -165,14 +212,14 @@ button {
     width: 100% !important;
     box-shadow: 0 2px 8px rgba(37,99,235,0.25) !important;
 }
-.btn-ask button:hover {
+.btn-ask button:hover, button.btn-ask:hover {
     background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important;
     box-shadow: 0 6px 20px rgba(37,99,235,0.35) !important;
     transform: translateY(-1px) !important;
 }
 
 /* Brief */
-.btn-brief button {
+.btn-brief button, button.btn-brief {
     background: #eff6ff !important;
     border: 1.5px solid #93c5fd !important;
     border-radius: 8px !important;
@@ -182,7 +229,7 @@ button {
     padding: 12px 28px !important;
     width: 100% !important;
 }
-.btn-brief button:hover {
+.btn-brief button:hover, button.btn-brief:hover {
     background: #dbeafe !important;
     border-color: #2563eb !important;
     color: #1e40af !important;
@@ -200,7 +247,7 @@ button[disabled] {
 }
 
 /* ── Quick chips ──────────────────────────────────────────── */
-.chip button {
+.chip button, button.chip {
     background: #eff6ff !important;
     border: 1.5px solid #bfdbfe !important;
     border-radius: 100px !important;
@@ -211,7 +258,7 @@ button[disabled] {
     white-space: nowrap !important;
     width: auto !important;
 }
-.chip button:hover {
+.chip button:hover, button.chip:hover {
     border-color: #2563eb !important;
     background: #dbeafe !important;
     color: #1d4ed8 !important;
@@ -353,7 +400,7 @@ input[type="checkbox"] { accent-color: #2563eb !important; }
         font-size: 0.8rem !important;
         padding: 9px 14px !important;
     }
-    .chip button {
+    .chip button, button.chip {
         font-size: 0.73rem !important;
         padding: 4px 10px !important;
     }
@@ -601,8 +648,8 @@ def build_app() -> gr.Blocks:
 
 
 _demo = build_app()
-_demo.launch(prevent_thread_lock=True, theme=_build_theme(), css=CSS)
+_demo.launch(prevent_thread_lock=True, theme=_build_theme(), css=CSS, js=FORCE_LIGHT_JS)
 app = _demo.app  # ASGI export for Vercel
 
 if __name__ == "__main__":
-    _demo.launch(share=False, theme=_build_theme(), css=CSS)
+    _demo.launch(share=False, theme=_build_theme(), css=CSS, js=FORCE_LIGHT_JS)
