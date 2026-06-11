@@ -429,8 +429,8 @@ def generate_brief_md(source: str, mode: str, use_mock: bool):
         return "Could not generate the brief. Please make sure a repository is loaded and try again."
 
 
-def build_app() -> gr.Blocks:
-    theme = gr.themes.Base(
+def _build_theme():
+    return gr.themes.Base(
         primary_hue=gr.themes.colors.blue,
         secondary_hue=gr.themes.colors.blue,
         neutral_hue=gr.themes.colors.slate,
@@ -467,7 +467,11 @@ def build_app() -> gr.Blocks:
         link_text_color="#2563eb",
         link_text_color_hover="#1d4ed8",
     )
-    with gr.Blocks(title="RAGRepo", css=CSS, theme=theme) as demo:
+
+
+def build_app() -> gr.Blocks:
+    # Gradio 6: theme/css must be passed to launch(), not the Blocks constructor.
+    with gr.Blocks(title="RAGRepo") as demo:
 
         # ── Header ──────────────────────────────────────────
         gr.HTML("""
@@ -597,8 +601,8 @@ def build_app() -> gr.Blocks:
 
 
 _demo = build_app()
-_demo.launch(prevent_thread_lock=True)
+_demo.launch(prevent_thread_lock=True, theme=_build_theme(), css=CSS)
 app = _demo.app  # ASGI export for Vercel
 
 if __name__ == "__main__":
-    _demo.launch(share=False)
+    _demo.launch(share=False, theme=_build_theme(), css=CSS)
