@@ -15,64 +15,76 @@ CSS = """
 *, *::before, *::after { box-sizing: border-box; }
 
 body, .gradio-container {
-    background: #0a0c10 !important;
+    background: #eff6ff !important;
     font-family: 'Inter', 'Segoe UI', system-ui, sans-serif !important;
-    color: #e2e8f0 !important;
+    color: #1e3a5f !important;
     margin: 0 !important;
     padding: 0 !important;
 }
 
 .gradio-container {
-    max-width: 900px !important;
+    max-width: 920px !important;
     margin: 0 auto !important;
-    padding: 0 16px 40px !important;
+    padding: 0 20px 48px !important;
 }
 
 /* ── Header ───────────────────────────────────────────────── */
 .site-header {
-    padding: 48px 0 32px;
+    padding: 52px 0 36px;
     text-align: center;
-    border-bottom: 1px solid #1e2430;
-    margin-bottom: 32px;
+    margin-bottom: 28px;
 }
 
 .site-header .wordmark {
-    font-size: 1.75rem;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-    color: #f8fafc;
-    margin: 0 0 8px;
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    color: #1e3a8a;
+    margin: 0 0 10px;
 }
 
 .site-header .wordmark span {
-    color: #3b82f6;
+    color: #2563eb;
+}
+
+.site-header .badge {
+    display: inline-block;
+    background: #dbeafe;
+    color: #1d4ed8;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 100px;
+    margin-bottom: 14px;
 }
 
 .site-header .tagline {
-    font-size: 0.925rem;
-    color: #64748b;
+    font-size: 0.95rem;
+    color: #3b82f6;
     margin: 0;
     font-weight: 400;
-    letter-spacing: 0.01em;
 }
 
 /* ── Section labels ───────────────────────────────────────── */
 .section-label {
-    font-size: 0.7rem;
+    font-size: 0.68rem;
     font-weight: 700;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: #475569;
-    margin: 0 0 8px;
+    color: #93c5fd;
+    margin: 0 0 10px;
 }
 
-/* ── Panels ───────────────────────────────────────────────── */
+/* ── Cards / panels ───────────────────────────────────────── */
 .panel {
-    background: #0f1420 !important;
-    border: 1px solid #1e2430 !important;
-    border-radius: 10px !important;
-    padding: 20px !important;
+    background: #ffffff !important;
+    border: 1px solid #bfdbfe !important;
+    border-radius: 14px !important;
+    padding: 24px !important;
     margin-bottom: 16px !important;
+    box-shadow: 0 1px 4px rgba(37,99,235,0.07) !important;
 }
 
 /* ── Inputs ───────────────────────────────────────────────── */
@@ -80,27 +92,28 @@ textarea,
 input[type="text"],
 input[type="search"],
 select {
-    background: #070a0f !important;
-    border: 1px solid #1e2430 !important;
-    color: #e2e8f0 !important;
-    border-radius: 7px !important;
+    background: #f0f7ff !important;
+    border: 1.5px solid #bfdbfe !important;
+    color: #1e3a5f !important;
+    border-radius: 8px !important;
     font-size: 0.9rem !important;
     font-family: inherit !important;
     transition: border-color 0.15s, box-shadow 0.15s !important;
-    padding: 10px 12px !important;
+    padding: 10px 13px !important;
 }
 
 textarea:focus,
 input[type="text"]:focus,
 select:focus {
-    border-color: #3b82f6 !important;
-    box-shadow: 0 0 0 3px rgba(59,130,246,0.12) !important;
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.15) !important;
     outline: none !important;
+    background: #fff !important;
 }
 
 textarea::placeholder,
 input[type="text"]::placeholder {
-    color: #334155 !important;
+    color: #93c5fd !important;
 }
 
 /* ── Labels ───────────────────────────────────────────────── */
@@ -110,7 +123,7 @@ label > span,
     font-weight: 700 !important;
     letter-spacing: 0.08em !important;
     text-transform: uppercase !important;
-    color: #475569 !important;
+    color: #3b82f6 !important;
 }
 
 /* ── Buttons — base ───────────────────────────────────────── */
@@ -122,62 +135,65 @@ button {
 
 /* Load */
 .btn-load button {
-    background: #3b82f6 !important;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
     border: none !important;
-    border-radius: 7px !important;
+    border-radius: 8px !important;
     color: #fff !important;
     font-size: 0.875rem !important;
-    font-weight: 600 !important;
-    padding: 11px 24px !important;
+    font-weight: 700 !important;
+    padding: 12px 28px !important;
     width: 100% !important;
-    letter-spacing: 0.01em !important;
+    letter-spacing: 0.02em !important;
+    box-shadow: 0 2px 8px rgba(37,99,235,0.25) !important;
 }
 .btn-load button:hover {
-    background: #2563eb !important;
-    box-shadow: 0 4px 16px rgba(59,130,246,0.3) !important;
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important;
+    box-shadow: 0 6px 20px rgba(37,99,235,0.35) !important;
     transform: translateY(-1px) !important;
 }
 .btn-load button:active { transform: translateY(0) !important; }
 
 /* Ask */
 .btn-ask button {
-    background: #1d4ed8 !important;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
     border: none !important;
-    border-radius: 7px !important;
+    border-radius: 8px !important;
     color: #fff !important;
     font-size: 0.875rem !important;
-    font-weight: 600 !important;
-    padding: 11px 24px !important;
+    font-weight: 700 !important;
+    padding: 12px 28px !important;
     width: 100% !important;
+    box-shadow: 0 2px 8px rgba(37,99,235,0.25) !important;
 }
 .btn-ask button:hover {
-    background: #1e40af !important;
-    box-shadow: 0 4px 16px rgba(29,78,216,0.35) !important;
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important;
+    box-shadow: 0 6px 20px rgba(37,99,235,0.35) !important;
     transform: translateY(-1px) !important;
 }
 
 /* Brief */
 .btn-brief button {
-    background: #0f172a !important;
-    border: 1px solid #334155 !important;
-    border-radius: 7px !important;
-    color: #94a3b8 !important;
+    background: #eff6ff !important;
+    border: 1.5px solid #93c5fd !important;
+    border-radius: 8px !important;
+    color: #1d4ed8 !important;
     font-size: 0.875rem !important;
-    font-weight: 600 !important;
-    padding: 11px 24px !important;
+    font-weight: 700 !important;
+    padding: 12px 28px !important;
     width: 100% !important;
 }
 .btn-brief button:hover {
-    background: #1e293b !important;
-    border-color: #3b82f6 !important;
-    color: #e2e8f0 !important;
+    background: #dbeafe !important;
+    border-color: #2563eb !important;
+    color: #1e40af !important;
     transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(37,99,235,0.15) !important;
 }
 
 /* Disabled state */
 button:disabled,
 button[disabled] {
-    opacity: 0.38 !important;
+    opacity: 0.4 !important;
     cursor: not-allowed !important;
     transform: none !important;
     box-shadow: none !important;
@@ -185,29 +201,29 @@ button[disabled] {
 
 /* ── Quick chips ──────────────────────────────────────────── */
 .chip button {
-    background: transparent !important;
-    border: 1px solid #1e2430 !important;
+    background: #eff6ff !important;
+    border: 1.5px solid #bfdbfe !important;
     border-radius: 100px !important;
-    color: #475569 !important;
+    color: #2563eb !important;
     font-size: 0.78rem !important;
-    font-weight: 500 !important;
+    font-weight: 600 !important;
     padding: 5px 14px !important;
     white-space: nowrap !important;
     width: auto !important;
 }
 .chip button:hover {
-    border-color: #3b82f6 !important;
-    color: #93c5fd !important;
-    background: rgba(59,130,246,0.06) !important;
+    border-color: #2563eb !important;
+    background: #dbeafe !important;
+    color: #1d4ed8 !important;
 }
 
 /* ── Status ───────────────────────────────────────────────── */
-.status-ok  p { color: #22c55e !important; font-size: 0.82rem !important; margin: 0 !important; }
-.status-err p { color: #ef4444 !important; font-size: 0.82rem !important; margin: 0 !important; }
+.status-ok  p { color: #16a34a !important; font-size: 0.83rem !important; margin: 0 !important; font-weight: 500 !important; }
+.status-err p { color: #dc2626 !important; font-size: 0.83rem !important; margin: 0 !important; font-weight: 500 !important; }
 
 /* ── Tabs ─────────────────────────────────────────────────── */
 .tabs > .tab-nav {
-    border-bottom: 1px solid #1e2430 !important;
+    border-bottom: 2px solid #bfdbfe !important;
     margin-bottom: 20px !important;
     gap: 0 !important;
 }
@@ -215,86 +231,108 @@ button[disabled] {
     background: transparent !important;
     border: none !important;
     border-bottom: 2px solid transparent !important;
-    color: #475569 !important;
+    color: #93c5fd !important;
     font-size: 0.85rem !important;
     font-weight: 600 !important;
-    padding: 10px 20px !important;
-    margin-bottom: -1px !important;
+    padding: 10px 22px !important;
+    margin-bottom: -2px !important;
     letter-spacing: 0.01em !important;
 }
 .tabs > .tab-nav button.selected {
-    color: #f8fafc !important;
-    border-bottom-color: #3b82f6 !important;
+    color: #1d4ed8 !important;
+    border-bottom-color: #2563eb !important;
 }
 .tabs > .tab-nav button:hover:not(.selected) {
-    color: #94a3b8 !important;
+    color: #3b82f6 !important;
 }
 
 /* ── Output boxes ─────────────────────────────────────────── */
 .output-box {
-    background: #070a0f !important;
-    border: 1px solid #1e2430 !important;
-    border-radius: 8px !important;
-    padding: 20px 22px !important;
+    background: #f0f7ff !important;
+    border: 1.5px solid #bfdbfe !important;
+    border-radius: 10px !important;
+    padding: 22px 24px !important;
     min-height: 140px !important;
-    margin-top: 12px !important;
+    margin-top: 14px !important;
 }
 .output-box p {
-    color: #cbd5e1 !important;
-    line-height: 1.75 !important;
+    color: #1e3a5f !important;
+    line-height: 1.8 !important;
     font-size: 0.9rem !important;
     margin: 0 0 12px !important;
 }
 .output-box p:last-child { margin-bottom: 0 !important; }
 .output-box code {
-    background: #1e2430 !important;
-    color: #7dd3fc !important;
-    border-radius: 4px !important;
+    background: #dbeafe !important;
+    color: #1d4ed8 !important;
+    border-radius: 5px !important;
     padding: 0.15em 0.45em !important;
     font-size: 0.85em !important;
     font-family: 'JetBrains Mono', 'Fira Code', monospace !important;
 }
 .output-box pre {
-    background: #1e2430 !important;
-    border-radius: 6px !important;
-    padding: 14px !important;
+    background: #1e3a8a !important;
+    border-radius: 8px !important;
+    padding: 16px !important;
     overflow-x: auto !important;
 }
-.output-box pre code { background: none !important; padding: 0 !important; }
+.output-box pre code {
+    background: none !important;
+    padding: 0 !important;
+    color: #bfdbfe !important;
+}
 .output-box h1, .output-box h2, .output-box h3 {
-    color: #f1f5f9 !important;
+    color: #1e3a8a !important;
     font-weight: 700 !important;
-    border-bottom: 1px solid #1e2430 !important;
+    border-bottom: 1.5px solid #bfdbfe !important;
     padding-bottom: 6px !important;
     margin: 24px 0 12px !important;
 }
 .output-box h1:first-child,
 .output-box h2:first-child,
 .output-box h3:first-child { margin-top: 0 !important; }
-.output-box strong { color: #e2e8f0 !important; }
+.output-box strong { color: #1e3a8a !important; }
 .output-box hr {
     border: none !important;
-    border-top: 1px solid #1e2430 !important;
+    border-top: 1.5px solid #bfdbfe !important;
     margin: 16px 0 !important;
 }
 
 /* ── Dropdown ─────────────────────────────────────────────── */
 .wrap.svelte-1p9xokt,
 select {
-    background: #070a0f !important;
-    border: 1px solid #1e2430 !important;
-    color: #e2e8f0 !important;
-    border-radius: 7px !important;
+    background: #f0f7ff !important;
+    border: 1.5px solid #bfdbfe !important;
+    color: #1e3a5f !important;
+    border-radius: 8px !important;
 }
 
 /* ── Checkbox ─────────────────────────────────────────────── */
-input[type="checkbox"] { accent-color: #3b82f6 !important; }
+input[type="checkbox"] { accent-color: #2563eb !important; }
 
 /* ── Divider ──────────────────────────────────────────────── */
 .divider {
     border: none;
-    border-top: 1px solid #1e2430;
+    border-top: 1.5px solid #bfdbfe;
     margin: 24px 0;
+}
+
+/* ── Info strip ───────────────────────────────────────────── */
+.info-strip {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+}
+.info-strip .chip-stat {
+    background: #dbeafe;
+    color: #1d4ed8;
+    border: 1px solid #93c5fd;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
 }
 
 /* ── Mobile ───────────────────────────────────────────────── */
@@ -303,16 +341,13 @@ input[type="checkbox"] { accent-color: #3b82f6 !important; }
         padding: 0 12px 32px !important;
     }
     .site-header {
-        padding: 32px 0 24px;
+        padding: 36px 0 28px;
     }
     .site-header .wordmark {
-        font-size: 1.4rem;
-    }
-    .site-header .tagline {
-        font-size: 0.82rem;
+        font-size: 1.6rem;
     }
     .panel {
-        padding: 14px !important;
+        padding: 16px !important;
     }
     .tabs > .tab-nav button {
         font-size: 0.8rem !important;
@@ -323,12 +358,8 @@ input[type="checkbox"] { accent-color: #3b82f6 !important; }
         padding: 4px 10px !important;
     }
     .output-box {
-        padding: 14px !important;
+        padding: 16px !important;
     }
-    .output-box p {
-        font-size: 0.85rem !important;
-    }
-    /* Stack the top row vertically on mobile */
     .top-row {
         flex-direction: column !important;
     }
@@ -401,46 +432,47 @@ def generate_brief_md(source: str, mode: str, use_mock: bool):
 def build_app() -> gr.Blocks:
     theme = gr.themes.Base(
         primary_hue=gr.themes.colors.blue,
-        secondary_hue=gr.themes.colors.slate,
+        secondary_hue=gr.themes.colors.blue,
         neutral_hue=gr.themes.colors.slate,
         font=gr.themes.GoogleFont("Inter"),
     ).set(
-        button_primary_background_fill="#3b82f6",
-        button_primary_background_fill_hover="#2563eb",
+        button_primary_background_fill="#2563eb",
+        button_primary_background_fill_hover="#1d4ed8",
         button_primary_text_color="#ffffff",
-        button_secondary_background_fill="#1e293b",
-        button_secondary_background_fill_hover="#334155",
-        button_secondary_text_color="#94a3b8",
-        button_secondary_border_color="#334155",
-        body_background_fill="#0a0c10",
-        body_text_color="#e2e8f0",
-        background_fill_primary="#0f1420",
-        background_fill_secondary="#070a0f",
-        border_color_primary="#1e2430",
-        border_color_accent="#3b82f6",
-        input_background_fill="#070a0f",
-        input_border_color="#1e2430",
-        input_border_color_focus="#3b82f6",
-        input_placeholder_color="#334155",
-        block_background_fill="#0f1420",
-        block_border_color="#1e2430",
-        block_label_text_color="#475569",
-        block_title_text_color="#e2e8f0",
-        panel_background_fill="#0f1420",
-        panel_border_color="#1e2430",
-        checkbox_background_color="#070a0f",
-        checkbox_border_color="#334155",
-        checkbox_border_color_focus="#3b82f6",
-        checkbox_background_color_selected="#3b82f6",
-        color_accent_soft="#1e3a5f",
-        link_text_color="#3b82f6",
-        link_text_color_hover="#60a5fa",
+        button_secondary_background_fill="#eff6ff",
+        button_secondary_background_fill_hover="#dbeafe",
+        button_secondary_text_color="#1d4ed8",
+        button_secondary_border_color="#93c5fd",
+        body_background_fill="#eff6ff",
+        body_text_color="#1e3a5f",
+        background_fill_primary="#ffffff",
+        background_fill_secondary="#f0f7ff",
+        border_color_primary="#bfdbfe",
+        border_color_accent="#2563eb",
+        input_background_fill="#f0f7ff",
+        input_border_color="#bfdbfe",
+        input_border_color_focus="#2563eb",
+        input_placeholder_color="#93c5fd",
+        block_background_fill="#ffffff",
+        block_border_color="#bfdbfe",
+        block_label_text_color="#3b82f6",
+        block_title_text_color="#1e3a5f",
+        panel_background_fill="#ffffff",
+        panel_border_color="#bfdbfe",
+        checkbox_background_color="#f0f7ff",
+        checkbox_border_color="#bfdbfe",
+        checkbox_border_color_focus="#2563eb",
+        checkbox_background_color_selected="#2563eb",
+        color_accent_soft="#dbeafe",
+        link_text_color="#2563eb",
+        link_text_color_hover="#1d4ed8",
     )
     with gr.Blocks(title="RAGRepo", css=CSS, theme=theme) as demo:
 
         # ── Header ──────────────────────────────────────────
         gr.HTML("""
         <div class="site-header">
+            <div class="badge">RAG · Code Intelligence</div>
             <h1 class="wordmark">RAG<span>Repo</span></h1>
             <p class="tagline">Understand any codebase instantly with retrieval-augmented generation</p>
         </div>
@@ -486,7 +518,7 @@ def build_app() -> gr.Blocks:
                         lines=2,
                         interactive=False,
                     )
-                    gr.HTML('<p class="section-label" style="margin-top:12px">Quick questions</p>')
+                    gr.HTML('<p class="section-label" style="margin-top:14px">Quick questions</p>')
                     with gr.Row():
                         suggestion_btns = [
                             gr.Button(s, size="sm", elem_classes="chip") for s in SUGGESTIONS
@@ -507,7 +539,7 @@ def build_app() -> gr.Blocks:
             with gr.Tab("Onboarding Brief"):
                 with gr.Group(elem_classes="panel"):
                     gr.HTML("""
-                    <p style="color:#64748b;font-size:0.85rem;margin:0 0 14px">
+                    <p style="color:#3b82f6;font-size:0.875rem;margin:0 0 16px;line-height:1.6">
                         Generates a structured document covering purpose, architecture,
                         entry points, dependencies, and where to start reading.
                     </p>
@@ -526,8 +558,8 @@ def build_app() -> gr.Blocks:
 
         # ── Footer ───────────────────────────────────────────
         gr.HTML("""
-        <div style="text-align:center;padding:24px 0 8px;color:#1e2430;font-size:0.75rem;
-                    border-top:1px solid #1e2430;margin-top:32px;">
+        <div style="text-align:center;padding:24px 0 8px;color:#93c5fd;font-size:0.75rem;
+                    border-top:1.5px solid #bfdbfe;margin-top:36px;">
             RAGRepo &nbsp;·&nbsp; BM25 retrieval &nbsp;·&nbsp; Powered by Groq
         </div>
         """)
